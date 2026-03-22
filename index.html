@@ -233,12 +233,16 @@
             localStorage.setItem('it_last_run', currentIteration);
         }
 
-        function manualRollover() {
-            if(confirm("TERMINATE SHIFT?")) {
-                dayOffset++;
-                localStorage.setItem('it_offset', dayOffset);
-                performRollover(currentIteration - 1);
-                location.reload();
+function manualRollover() {
+    if(confirm("TERMINATE SHIFT?")) {
+        // Save the note under the CURRENT iteration number before we change anything
+        performRollover(currentIteration); 
+        
+        // Now increment the day to move to the next operator
+        dayOffset++;
+        localStorage.setItem('it_offset', dayOffset);
+        
+        location.reload();
             }
         }
 

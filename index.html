@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERM // ITERATION OS // STEALTH_v10</title>
+    <title>TERM // ITERATION OS // STEALTH_v11</title>
     <style>
         :root {
             --term-green: #00ff66;
@@ -40,9 +40,10 @@
         .sector-block { border: 1px solid var(--term-dim); padding: 10px; cursor: pointer; text-align: center; font-size: 0.75rem; color: var(--term-white); }
         .sector-block:hover { background: var(--term-dim); border-color: var(--term-green); }
 
-        .iteration-sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; margin: 15px 0; padding: 10px; border: 1px dashed var(--term-dim); display: none; }
-        .it-chip { border: 1px solid var(--term-dim); color: var(--term-green); padding: 5px; text-align: center; cursor: pointer; font-size: 0.7rem; }
+        .iteration-sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin: 15px 0; padding: 10px; border: 1px dashed var(--term-dim); display: none; }
+        .it-chip { border: 1px solid var(--term-dim); color: var(--term-green); padding: 5px; text-align: center; cursor: pointer; font-size: 0.65rem; }
         .it-chip:hover { border-color: var(--term-green); background: var(--term-dim); }
+        .it-date { display: block; font-size: 0.5rem; color: var(--term-white); opacity: 0.7; }
 
         #log-viewer { border-top: 1px solid var(--term-green); padding: 15px; margin-top: 10px; display: none; }
         .view-header { color: var(--term-green); font-weight: bold; margin-bottom: 10px; font-size: 0.8rem; }
@@ -120,14 +121,11 @@
     </div>
 
     <script>
-        // --- SYSTEM CONFIG ---
         const startDateString = "2004-10-15T00:00:00"; 
         
-        // --- STEALTH CREDENTIALS ---
         let GIST_ID = localStorage.getItem('it_gist_id');
         let GIST_TOKEN = localStorage.getItem('it_gist_token');
 
-        // Initial setup for new devices
         function checkCredentials() {
             if (!GIST_ID || !GIST_TOKEN) {
                 GIST_ID = prompt(">> INITIAL_BOOT: INPUT GIST_ID");
@@ -147,13 +145,11 @@
             }
         }
 
-        // --- GLOBAL VARIABLES ---
         let dayOffset = parseInt(localStorage.getItem('it_offset')) || 0;
         let tasks = JSON.parse(localStorage.getItem('it_tasks')) || [];
         let archive = JSON.parse(localStorage.getItem('it_archive')) || [];
         let currentIteration = 0;
 
-        // --- INITIALIZATION ---
         function initSystem() {
             checkCredentials();
             const start = new Date(startDateString);
@@ -172,9 +168,8 @@
             setInterval(() => { document.getElementById('sys-time').innerText = new Date().toLocaleTimeString('en-GB'); }, 1000);
         }
 
-        // --- CLOUD ENGINE ---
         async function cloudPush() {
-            if (!GIST_TOKEN || !GIST_ID) { alert("ERROR: CREDENTIALS_MISSING."); return; }
+            if (!GIST_TOKEN || !GIST_ID) return;
             const data = {
                 archive: archive,
                 tasks: tasks,
@@ -189,12 +184,11 @@
                     body: JSON.stringify({ files: { "soul_backup.json": { content: JSON.stringify(data) } } })
                 });
                 if (response.ok) alert(">> CLOUD_PUSH: SUCCESSFUL.");
-                else alert(">> ERROR: CLOUD_REJECTED. CHECK TOKEN.");
             } catch (e) { alert(">> ERROR: CONNECTION_FAILED."); }
         }
 
         async function cloudPull() {
-            if (!GIST_TOKEN || !GIST_ID) { alert("ERROR: CREDENTIALS_MISSING."); return; }
+            if (!GIST_TOKEN || !GIST_ID) return;
             try {
                 const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                     headers: { "Authorization": `token ${GIST_TOKEN}` }
@@ -210,10 +204,9 @@
                     localStorage.setItem('it_last_run', data.last_run);
                     location.reload();
                 }
-            } catch (e) { alert(">> ERROR: PULL_FAILED. CHECK GIST_ID."); }
+            } catch (e) { alert(">> ERROR: PULL_FAILED."); }
         }
 
-        // --- ROLLOVER LOGIC ---
         function checkAutoRollover() {
             let savedIter = parseInt(localStorage.getItem('it_last_run')) || currentIteration;
             if (currentIteration > savedIter) { performRollover(savedIter); }
@@ -223,7 +216,7 @@
         function performRollover(iterToArchive) {
             let lastNote = localStorage.getItem('it_draft') || "";
             if (lastNote.trim() !== "") {
-                archive.unshift({ id: iterToArchive, body: lastNote, date: new Date().toDateString() });
+                archive.unshift({ id: iterToArchive, body: lastNote, date: new Date().toLocaleDateString('en-GB') });
                 localStorage.setItem('it_archive', JSON.stringify(archive));
                 localStorage.setItem('it_patch', lastNote);
             }
@@ -233,20 +226,15 @@
             localStorage.setItem('it_last_run', currentIteration);
         }
 
-function manualRollover() {
-    if(confirm("TERMINATE SHIFT?")) {
-        // Save the note under the CURRENT iteration number before we change anything
-        performRollover(currentIteration); 
-        
-        // Now increment the day to move to the next operator
-        dayOffset++;
-        localStorage.setItem('it_offset', dayOffset);
-        
-        location.reload();
+        function manualRollover() {
+            if(confirm("TERMINATE SHIFT?")) {
+                performRollover(currentIteration);
+                dayOffset++;
+                localStorage.setItem('it_offset', dayOffset);
+                location.reload();
             }
         }
 
-        // --- UI RENDERING ---
         function renderSectors() {
             const grid = document.getElementById('sector-grid');
             grid.innerHTML = '';
@@ -269,7 +257,11 @@ function manualRollover() {
         function showIterationGrid(entries) {
             const itGrid = document.getElementById('it-sub-grid');
             itGrid.style.display = 'grid';
-            itGrid.innerHTML = entries.map(e => `<div class="it-chip" onclick="decryptLog(${e.id})">${e.id}</div>`).join('');
+            itGrid.innerHTML = entries.map(e => `
+                <div class="it-chip" onclick="decryptLog(${e.id})">
+                    ${e.id}
+                    <span class="it-date">${e.date}</span>
+                </div>`).join('');
         }
 
         function decryptLog(id) {

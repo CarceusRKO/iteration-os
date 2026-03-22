@@ -3,138 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MN-01 // U-ECHO // STEALTH_v11</title>
+    <title>MN-01 // U-ECHO // RUNNER_SYSTEM</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@400;700&display=swap');
+
         :root {
-            --m-acid: #dfff11; /* Signature Marathon Yellow-Green */
+            --m-acid: #dfff11; /* Marathon Toxic Yellow */
             --m-cobalt: #0011ff; /* Deep Tech Blue */
             --m-black: #05070a;
             --m-white: #f0f0f5;
             --m-border: #2a2d35;
-            --m-alert: #ff3e00; /* Hazard Orange */
-            --m-surface: rgba(10, 12, 16, 0.95);
+            --m-alert: #ff3e00;
+            --m-surface: rgba(10, 12, 16, 0.98);
         }
+
+        * { box-sizing: border-box; }
 
         body {
             background-color: var(--m-black);
             color: var(--m-white);
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            margin: 0; padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0; padding: 40px 20px;
             display: flex; flex-direction: column; align-items: center;
             background-image: 
                 linear-gradient(90deg, rgba(223, 255, 17, 0.03) 1px, transparent 1px),
                 linear-gradient(rgba(223, 255, 17, 0.03) 1px, transparent 1px);
-            background-size: 25px 25px;
+            background-size: 30px 30px;
             text-transform: uppercase;
         }
 
-        /* Side Branding Decal */
+        /* Side Rail Branding */
         body::before {
-            content: "RUNNER_OS // SEC_BANK_099";
-            position: fixed; left: 10px; top: 50%;
+            content: "RUNNER_OS // AUTH_REQUIRED // SEC_BANK_099";
+            position: fixed; left: 15px; top: 50%;
             transform: rotate(-90deg) translateY(-50%);
             font-size: 0.6rem; font-weight: 900;
-            letter-spacing: 4px; color: var(--m-acid); opacity: 0.4;
+            letter-spacing: 6px; color: var(--m-acid); opacity: 0.3;
+            pointer-events: none;
         }
 
         .terminal-container { 
-            width: 100%; max-width: 780px; 
+            width: 100%; max-width: 800px; 
             border: 2px solid var(--m-border);
             background: var(--m-surface);
             position: relative;
-            box-shadow: 15px 15px 0px rgba(0, 17, 255, 0.1);
+            box-shadow: 20px 20px 0px rgba(0, 17, 255, 0.15);
         }
 
-        /* Top Header - Clipped Shape */
+        /* Heavy Industrial Header */
         .sys-header { 
             background: var(--m-acid);
             color: var(--m-black);
-            padding: 15px 25px;
+            padding: 20px 30px;
             display: flex; justify-content: space-between; align-items: center;
-            clip-path: polygon(0 0, 100% 0, 100% 70%, 98% 100%, 0 100%);
-            margin-bottom: 0;
+            clip-path: polygon(0 0, 100% 0, 100% 75%, 97% 100%, 0 100%);
         }
 
-        .welcome-text { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; }
-        .status-line { font-family: monospace; font-size: 0.7rem; font-weight: bold; color: var(--m-black); opacity: 0.8; }
+        .welcome-text { 
+            font-family: 'Inter', sans-serif;
+            font-size: 1.8rem; font-weight: 900; 
+            letter-spacing: -2px; 
+            font-style: italic;
+        }
 
-        .inner-border { padding: 30px; border: none; }
+        .status-line { font-size: 0.75rem; font-weight: bold; opacity: 0.9; }
 
-        /* Modules */
-        .module { margin-bottom: 30px; }
+        .inner-border { padding: 35px; }
+
+        /* Module Titles as Data Tags */
+        .module { margin-bottom: 40px; }
         .module-title { 
-            font-size: 0.75rem; font-weight: 900; 
-            color: var(--m-acid); 
-            border-left: 6px solid var(--m-cobalt);
-            padding-left: 12px;
-            margin-bottom: 12px;
-            letter-spacing: 2px;
+            font-size: 0.65rem; font-weight: 900; 
+            color: #fff; background: var(--m-cobalt);
+            display: inline-block; padding: 4px 15px;
+            letter-spacing: 3px; margin-bottom: 15px;
+            clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
         }
 
-        .data-box { 
+        /* --- THE PROSE TEXT STYLING (THE LOGS) --- */
+        .data-box, .view-body { 
             background: rgba(255,255,255,0.02);
             border: 1px solid var(--m-border);
-            padding: 18px;
+            padding: 25px;
+            line-height: 1.8;
+            letter-spacing: 0.05rem;
+            color: rgba(240, 240, 245, 0.95);
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Form Elements */
+        /* Subtle scanline overlay for logs */
+        .data-box::after, .view-body::after {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 3px);
+            pointer-events: none;
+        }
+
+        /* Iteration Highlight (e.g. 7829) */
+        .it-highlight {
+            color: var(--m-black);
+            background: var(--m-acid);
+            padding: 0 4px;
+            font-weight: 700;
+        }
+
+        /* Input Styling */
         textarea, input[type="text"] { 
-            background: #11141b; border: 1px solid var(--m-border); 
-            color: var(--m-acid); font-family: monospace; padding: 12px;
-            outline: none; transition: 0.2s;
+            background: #0d1017; border: 1px solid var(--m-border); 
+            color: var(--m-acid); font-family: inherit; padding: 15px;
+            outline: none; transition: 0.2s; width: 100%; border-radius: 0;
         }
-        textarea:focus, input:focus { border-color: var(--m-acid); background: #161a24; }
+        textarea:focus, input[type="text"]:focus { border-color: var(--m-acid); background: #121620; }
 
-        /* Directives / Task List */
+        /* Task List */
         .task-list { list-style: none; padding: 0; }
         .task-item { 
-            display: flex; align-items: center; padding: 10px;
+            display: flex; align-items: center; padding: 12px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.85rem; font-weight: 600;
+            font-size: 0.85rem; transition: 0.2s;
         }
-        .task-item.completed { color: var(--m-acid); opacity: 0.4; }
+        .task-item:hover {
+            background: rgba(223, 255, 11, 0.05);
+            padding-left: 20px;
+            color: var(--m-acid);
+        }
+        .task-item.completed { opacity: 0.3; text-decoration: line-through; }
         .checkbox { 
-            width: 12px; height: 12px; border: 2px solid var(--m-acid); 
-            margin-right: 15px; cursor: pointer; display: inline-block;
+            width: 14px; height: 14px; border: 2px solid var(--m-acid); 
+            margin-right: 15px; cursor: pointer;
         }
         .completed .checkbox { background: var(--m-acid); }
 
-        /* Data Navigator Blocks */
-        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+        /* Grid UI */
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
         .sector-block { 
             background: var(--m-cobalt); color: white;
-            border: none; padding: 12px; font-weight: 900; 
-            transition: 0.2s; text-align: left;
+            border: none; padding: 15px; font-weight: 900; font-size: 0.7rem;
+            cursor: pointer; transition: 0.3s;
         }
-        .sector-block:hover { background: var(--m-acid); color: var(--m-black); transform: translateX(5px); }
-
-        .it-chip { 
-            background: #11141b; border: 1px solid var(--m-border);
-            color: var(--m-acid); padding: 8px; font-weight: bold;
-        }
-        .it-chip:hover { border-color: var(--m-acid); background: var(--m-cobalt); color: white; }
+        .sector-block:hover { background: var(--m-acid); color: var(--m-black); transform: scale(1.02); }
 
         /* Buttons */
         .btn-ui { 
             background: var(--m-border); color: var(--m-white); 
-            border: none; padding: 10px 15px;
+            border: none; padding: 12px 20px;
             font-size: 0.65rem; font-weight: 900; cursor: pointer;
-            letter-spacing: 1px; transition: 0.2s;
+            letter-spacing: 2px; transition: 0.2s;
         }
         .btn-ui:hover { background: var(--m-acid); color: var(--m-black); }
         .btn-sync { background: var(--m-cobalt); color: white; }
         .btn-alert { background: var(--m-alert); color: white; }
 
-        /* Log Viewer */
         #log-viewer { 
             background: #000; border: 1px dashed var(--m-acid); 
-            padding: 20px; margin-top: 20px;
+            padding: 25px; margin-top: 25px; display: none;
         }
-        .view-header { color: var(--m-acid); font-weight: 900; margin-bottom: 10px; font-size: 0.8rem; }
-        .view-body { color: var(--m-white); border-left: none; padding-left: 0; font-family: monospace; }
+        .view-header { color: var(--m-acid); font-weight: 900; margin-bottom: 10px; font-size: 0.8rem; letter-spacing: 2px;}
 
-        .blink { animation: blinker 0.15s infinite alternate; }
-        @keyframes blinker { from { opacity: 1; } to { opacity: 0.7; } }
+        ::-webkit-scrollbar { width: 5px; background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--m-acid); }
     </style>
 </head>
 <body>
@@ -142,55 +171,57 @@
     <div class="terminal-container">
         <div class="sys-header">
             <div class="welcome-text">M-LOG // ITERATION_<span id="it-count">----</span></div>
-            <div class="status-line">U-ECHO // <span id="sys-time">00:00:00</span></div>
+            <div class="status-line">[U-ECHO] // <span id="sys-time">00:00:00</span></div>
         </div>
 
         <div class="inner-border">
             
             <div class="module">
-                <div class="module-title" id="legacy-title">MOD 01 // Inherited_Echo</div>
-                <div class="data-box" id="patch-notes-display" style="border-left: 2px solid var(--m-acid);">...</div>
+                <div class="module-title">[01] INHERITED_ECHO</div>
+                <div class="data-box" id="patch-notes-display" style="border-left: 4px solid var(--m-acid);">
+                    >> WAITING FOR DATA UPLINK...
+                </div>
             </div>
 
             <div class="module">
-                <div class="module-title">MOD 02 // Active_Directives</div>
+                <div class="module-title">[02] ACTIVE_DIRECTIVES</div>
                 <div class="data-box">
                     <ul class="task-list" id="todo-list"></ul>
-                    <input type="text" id="new-task-input" placeholder=">> INPUT_NEW_DIRECTIVE" style="width:100%; margin-top:10px;">
+                    <input type="text" id="new-task-input" placeholder=">> INPUT_NEW_DIRECTIVE_CODE">
                 </div>
             </div>
 
             <div class="module">
-                <div class="module-title" id="successor-title">MOD 03 // Handover_Sequence</div>
+                <div class="module-title">[03] HANDOVER_DATA</div>
                 <div class="data-box">
-                    <textarea id="next-note" placeholder="COMPILE DATA FOR NEXT RUNNER..." rows="3" onkeyup="saveNote()" style="width:100%"></textarea>
+                    <textarea id="next-note" placeholder="COMPILE LOGS FOR NEXT ITERATION..." rows="4" onkeyup="saveNote()"></textarea>
                 </div>
             </div>
 
             <div class="module">
-                <div class="module-title">MOD 04 // Memory_Bank</div>
+                <div class="module-title">[04] MEMORY_BANK</div>
                 <div class="data-box">
                     <div class="archive-grid" id="sector-grid"></div>
-                    <div class="iteration-sub-grid" id="it-sub-grid"></div>
+                    <div id="it-sub-grid" style="display:none; margin-top: 15px; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 5px;"></div>
 
                     <div id="log-viewer">
-                        <div class="view-header" id="view-id">LOG_DECRYPTED</div>
+                        <div class="view-header" id="view-id">LOG_RECOVERY_COMPLETE</div>
                         <div class="view-body" id="view-body">...</div>
                     </div>
 
-                    <div style="margin-top:25px; display:flex; flex-wrap:wrap; gap:10px;">
-                        <button class="btn-ui btn-sync" onclick="cloudPush()">Push_To_U-Echo</button>
-                        <button class="btn-ui btn-sync" onclick="cloudPull()">Pull_From_Bank</button>
-                        <button class="btn-ui" onclick="manualRollover()">Reset_Runner</button>
-                        <button class="btn-ui" onclick="resetKeys()">Keys</button>
-                        <button class="btn-ui btn-alert" onclick="purgeArchive()">Wipe_Local</button>
+                    <div style="margin-top:30px; display:flex; flex-wrap:wrap; gap:10px;">
+                        <button class="btn-ui btn-sync" onclick="cloudPush()">SYNC_TO_CLOUD</button>
+                        <button class="btn-ui btn-sync" onclick="cloudPull()">PULL_FROM_CLOUD</button>
+                        <button class="btn-ui" onclick="manualRollover()">TERMINATE_SESSION</button>
+                        <button class="btn-ui" onclick="resetKeys()">ACCESS_KEYS</button>
+                        <button class="btn-ui btn-alert" onclick="purgeArchive()">WIPE_LOCAL_BANK</button>
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
-    
+
     <script>
         const startDateString = "2004-10-15T00:00:00"; 
         let GIST_ID = localStorage.getItem('it_gist_id');
@@ -207,8 +238,13 @@
             }
         }
 
+        // Helper to auto-highlight iteration numbers (4-digits)
+        function formatProse(text) {
+            return text.replace(/\b(\d{4})\b/g, '<span class="it-highlight">$1</span>');
+        }
+
         function resetKeys() {
-            if(confirm("UPDATE SYSTEM CREDENTIALS?")) {
+            if(confirm("UPDATE ACCESS KEYS?")) {
                 localStorage.removeItem('it_gist_id');
                 localStorage.removeItem('it_gist_token');
                 location.reload();
@@ -227,9 +263,6 @@
             currentIteration = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + dayOffset;
             
             document.getElementById('it-count').innerText = currentIteration;
-            document.getElementById('legacy-title').innerText = `MOD 01 // Echo_From [${currentIteration - 1}]`;
-            document.getElementById('successor-title').innerText = `MOD 03 // Handover_To [${currentIteration + 1}]`;
-
             checkAutoRollover();
             renderTasks();
             renderSectors();
@@ -247,8 +280,8 @@
                     headers: { "Authorization": `token ${GIST_TOKEN}` },
                     body: JSON.stringify({ files: { "soul_backup.json": { content: JSON.stringify(data) } } })
                 });
-                if (response.ok) alert("SYNC_SUCCESSFUL");
-            } catch (e) { alert("SYNC_ERROR"); }
+                if (response.ok) alert("CLOUD_UPLINK_SUCCESSFUL");
+            } catch (e) { alert("ERROR: UPLINK_TIMEOUT"); }
         }
 
         async function cloudPull() {
@@ -259,7 +292,7 @@
                 });
                 const gist = await response.json();
                 const data = JSON.parse(gist.files["soul_backup.json"].content);
-                if (confirm("OVERWRITE LOCAL DATA?")) {
+                if (confirm("OVERWRITE LOCAL DATA WITH CLOUD?")) {
                     localStorage.setItem('it_archive', JSON.stringify(data.archive));
                     localStorage.setItem('it_tasks', JSON.stringify(data.tasks));
                     localStorage.setItem('it_patch', data.patch);
@@ -267,13 +300,14 @@
                     localStorage.setItem('it_last_run', data.last_run);
                     location.reload();
                 }
-            } catch (e) { alert("PULL_ERROR"); }
+            } catch (e) { alert("ERROR: DOWNLINK_FAILED"); }
         }
 
         function checkAutoRollover() {
             let savedIter = parseInt(localStorage.getItem('it_last_run')) || currentIteration;
             if (currentIteration > savedIter) { performRollover(savedIter); }
-            document.getElementById('patch-notes-display').innerText = localStorage.getItem('it_patch') || "SYSTEM_BOOT_INITIALIZED.";
+            const savedPatch = localStorage.getItem('it_patch') || ">> NO PREVIOUS ECHO DETECTED.";
+            document.getElementById('patch-notes-display').innerHTML = formatProse(savedPatch);
         }
 
         function performRollover(iterToArchive) {
@@ -290,7 +324,7 @@
         }
 
         function manualRollover() {
-            if(confirm("TERMINATE RUNNER SESSION?")) {
+            if(confirm("TERMINATE RUNNER SESSION? DATA WILL BE ARCHIVED.")) {
                 performRollover(currentIteration);
                 dayOffset++;
                 localStorage.setItem('it_offset', dayOffset);
@@ -311,7 +345,7 @@
             Object.keys(sectors).sort().reverse().forEach(key => {
                 const div = document.createElement('div');
                 div.className = 'sector-block';
-                div.innerText = `SEC_${key}`;
+                div.innerText = `BANK_SEC_${key}`;
                 div.onclick = () => showIterationGrid(sectors[key]);
                 grid.appendChild(div);
             });
@@ -321,9 +355,8 @@
             const itGrid = document.getElementById('it-sub-grid');
             itGrid.style.display = 'grid';
             itGrid.innerHTML = entries.map(e => `
-                <div class="it-chip" onclick="decryptLog(${e.id})">
+                <div style="border:1px solid var(--m-border); padding:8px; cursor:pointer; font-size:0.6rem; text-align:center; color:var(--m-acid)" onclick="decryptLog(${e.id})">
                     ${e.id}
-                    <span class="it-date" style="display:block; font-size:0.5rem; opacity:0.6">${e.date}</span>
                 </div>`).join('');
         }
 
@@ -332,8 +365,8 @@
             const entry = archive.find(e => e.id === id);
             if (entry) {
                 viewer.style.display = 'block';
-                document.getElementById('view-id').innerText = `MEMORY_BANK // ITERATION_${entry.id}`;
-                document.getElementById('view-body').innerText = entry.body;
+                document.getElementById('view-id').innerText = `>> RECOVERING_ITERATION: ${entry.id}`;
+                document.getElementById('view-body').innerHTML = formatProse(entry.body);
                 viewer.scrollIntoView({ behavior: 'smooth' });
             }
         }
@@ -341,9 +374,9 @@
         function renderTasks() {
             document.getElementById('todo-list').innerHTML = tasks.map((t, i) => `
                 <li class="task-item ${t.done ? 'completed' : ''}">
-                    <span class="checkbox" onclick="toggleTask(${i})"></span>
+                    <div class="checkbox" onclick="toggleTask(${i})"></div>
                     <span style="flex-grow:1">${t.text}</span>
-                    <span style="cursor:pointer;color:var(--m-alert)" onclick="deleteTask(${i})">WIPE</span>
+                    <span style="cursor:pointer;color:var(--m-alert);font-size:0.6rem;font-weight:900" onclick="deleteTask(${i})">WIPE</span>
                 </li>`).join('');
         }
 
@@ -359,7 +392,7 @@
         function deleteTask(i) { tasks.splice(i, 1); saveTasks(); renderTasks(); }
         function saveTasks() { localStorage.setItem('it_tasks', JSON.stringify(tasks)); }
         function saveNote() { localStorage.setItem('it_draft', document.getElementById('next-note').value); }
-        function purgeArchive() { if(confirm("PURGE ALL LOCAL DATA?")) { localStorage.clear(); location.reload(); } }
+        function purgeArchive() { if(confirm("WIPE MEMORY BANK? ALL LOCAL DATA WILL BE LOST.")) { localStorage.clear(); location.reload(); } }
         document.getElementById('new-task-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
 
         initSystem();

@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MN-01 // U-ECHO // RUNNER_SYSTEM</title>
+    <title>MN-01 // U-ECHO // ITERATION_SYSTEM</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@400;700&display=swap');
 
         :root {
-            --m-acid: #dfff11; /* Marathon Toxic Yellow */
-            --m-cobalt: #0011ff; /* Deep Tech Blue */
+            --m-acid: #dfff11; 
+            --m-cobalt: #0011ff; 
             --m-black: #05070a;
             --m-white: #f0f0f5;
             --m-border: #2a2d35;
@@ -32,9 +32,8 @@
             text-transform: uppercase;
         }
 
-        /* Side Rail Branding */
         body::before {
-            content: "RUNNER_OS // AUTH_REQUIRED // SEC_BANK_099";
+            content: "ITERATION_OS // AUTH_REQUIRED // SEC_BANK_099";
             position: fixed; left: 15px; top: 50%;
             transform: rotate(-90deg) translateY(-50%);
             font-size: 0.6rem; font-weight: 900;
@@ -50,7 +49,6 @@
             box-shadow: 20px 20px 0px rgba(0, 17, 255, 0.15);
         }
 
-        /* Heavy Industrial Header */
         .sys-header { 
             background: var(--m-acid);
             color: var(--m-black);
@@ -67,10 +65,8 @@
         }
 
         .status-line { font-size: 0.75rem; font-weight: bold; opacity: 0.9; }
-
         .inner-border { padding: 35px; }
 
-        /* Module Titles as Data Tags */
         .module { margin-bottom: 40px; }
         .module-title { 
             font-size: 0.65rem; font-weight: 900; 
@@ -80,7 +76,6 @@
             clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
         }
 
-        /* --- THE PROSE TEXT STYLING (THE LOGS) --- */
         .data-box, .view-body { 
             background: rgba(255,255,255,0.02);
             border: 1px solid var(--m-border);
@@ -90,18 +85,18 @@
             color: rgba(240, 240, 245, 0.95);
             font-size: 0.85rem;
             position: relative;
-            overflow: hidden;
         }
 
-        /* Subtle scanline overlay for logs */
-        .data-box::after, .view-body::after {
-            content: "";
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 3px);
-            pointer-events: none;
+        .log-timestamp {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--m-acid);
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--m-border);
+            padding-bottom: 5px;
+            opacity: 0.8;
         }
 
-        /* Iteration Highlight (e.g. 7829) */
         .it-highlight {
             color: var(--m-black);
             background: var(--m-acid);
@@ -109,7 +104,6 @@
             font-weight: 700;
         }
 
-        /* Input Styling */
         textarea, input[type="text"] { 
             background: #0d1017; border: 1px solid var(--m-border); 
             color: var(--m-acid); font-family: inherit; padding: 15px;
@@ -117,7 +111,6 @@
         }
         textarea:focus, input[type="text"]:focus { border-color: var(--m-acid); background: #121620; }
 
-        /* Task List */
         .task-list { list-style: none; padding: 0; }
         .task-item { 
             display: flex; align-items: center; padding: 12px;
@@ -136,7 +129,6 @@
         }
         .completed .checkbox { background: var(--m-acid); }
 
-        /* Grid UI */
         .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
         .sector-block { 
             background: var(--m-cobalt); color: white;
@@ -145,7 +137,6 @@
         }
         .sector-block:hover { background: var(--m-acid); color: var(--m-black); transform: scale(1.02); }
 
-        /* Buttons */
         .btn-ui { 
             background: var(--m-border); color: var(--m-white); 
             border: none; padding: 12px 20px;
@@ -202,7 +193,7 @@
                 <div class="module-title">[04] MEMORY_BANK</div>
                 <div class="data-box">
                     <div class="archive-grid" id="sector-grid"></div>
-                    <div id="it-sub-grid" style="display:none; margin-top: 15px; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 5px;"></div>
+                    <div id="it-sub-grid" style="display:none; margin-top: 15px; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px;"></div>
 
                     <div id="log-viewer">
                         <div class="view-header" id="view-id">LOG_RECOVERY_COMPLETE</div>
@@ -238,7 +229,6 @@
             }
         }
 
-        // Helper to auto-highlight iteration numbers (4-digits)
         function formatProse(text) {
             return text.replace(/\b(\d{4})\b/g, '<span class="it-highlight">$1</span>');
         }
@@ -313,7 +303,8 @@
         function performRollover(iterToArchive) {
             let lastNote = localStorage.getItem('it_draft') || "";
             if (lastNote.trim() !== "") {
-                archive.unshift({ id: iterToArchive, body: lastNote, date: new Date().toLocaleDateString('en-GB') });
+                const timestamp = new Date().toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
+                archive.unshift({ id: iterToArchive, body: lastNote, date: timestamp });
                 localStorage.setItem('it_archive', JSON.stringify(archive));
                 localStorage.setItem('it_patch', lastNote);
             }
@@ -324,7 +315,7 @@
         }
 
         function manualRollover() {
-            if(confirm("TERMINATE RUNNER SESSION? DATA WILL BE ARCHIVED.")) {
+            if(confirm("TERMINATE SESSION? DATA WILL BE ARCHIVED.")) {
                 performRollover(currentIteration);
                 dayOffset++;
                 localStorage.setItem('it_offset', dayOffset);
@@ -366,7 +357,10 @@
             if (entry) {
                 viewer.style.display = 'block';
                 document.getElementById('view-id').innerText = `>> RECOVERING_ITERATION: ${entry.id}`;
-                document.getElementById('view-body').innerHTML = formatProse(entry.body);
+                document.getElementById('view-body').innerHTML = `
+                    <span class="log-timestamp">TIMESTAMP_RECORD: ${entry.date}</span>
+                    ${formatProse(entry.body)}
+                `;
                 viewer.scrollIntoView({ behavior: 'smooth' });
             }
         }
@@ -392,7 +386,7 @@
         function deleteTask(i) { tasks.splice(i, 1); saveTasks(); renderTasks(); }
         function saveTasks() { localStorage.setItem('it_tasks', JSON.stringify(tasks)); }
         function saveNote() { localStorage.setItem('it_draft', document.getElementById('next-note').value); }
-        function purgeArchive() { if(confirm("WIPE MEMORY BANK? ALL LOCAL DATA WILL BE LOST.")) { localStorage.clear(); location.reload(); } }
+        function purgeArchive() { if(confirm("WIPE ALL LOCAL DATA?")) { localStorage.clear(); location.reload(); } }
         document.getElementById('new-task-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
 
         initSystem();

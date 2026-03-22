@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERM // ITERATION OS // GLOBAL_SYNC_v9</title>
+    <style>
+        :root {
+            --term-green: #00ff66;
+            --term-dim: #004411;
+            --term-white: #e0f8e0;
+            --term-alert: #ff3333;
+            --bg-base: #020602;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--term-green);
+            font-family: "Courier New", Courier, monospace;
+            text-transform: uppercase;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            background-image: linear-gradient(rgba(0, 255, 102, 0.02) 1px, transparent 1px);
+            background-size: 100% 3px;
+        }
+
+        .terminal-container { width: 100%; max-width: 750px; border: 1px solid var(--term-dim); padding: 2px; }
+        .inner-border { border: 1px solid var(--term-green); padding: 20px; }
+        .sys-header { border-bottom: 2px dashed var(--term-dim); padding-bottom: 15px; margin-bottom: 20px; }
+        .status-line { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--term-white); }
+        .welcome-text { font-size: 1.4rem; margin: 10px 0; color: var(--term-white); font-weight: bold; }
+        
+        .module { margin-bottom: 20px; }
+        .module-title { background-color: var(--term-green); color: var(--bg-base); display: inline-block; padding: 2px 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
+        .data-box { border: 1px solid var(--term-dim); background: rgba(0, 255, 102, 0.01); padding: 12px; font-size: 0.9rem; }
+        
+        textarea, input[type="text"] { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--term-dim); color: var(--term-green); font-family: inherit; padding: 8px 0; outline: none; text-transform: uppercase; }
+
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
+        .sector-block { border: 1px solid var(--term-dim); padding: 10px; cursor: pointer; text-align: center; font-size: 0.75rem; color: var(--term-white); }
+        .sector-block:hover { background: var(--term-dim); border-color: var(--term-green); }
+
+        .iteration-sub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; margin: 15px 0; padding: 10px; border: 1px dashed var(--term-dim); display: none; }
+        .it-chip { border: 1px solid var(--term-dim); color: var(--term-green); padding: 5px; text-align: center; cursor: pointer; font-size: 0.7rem; }
+        .it-chip:hover { border-color: var(--term-green); background: var(--term-dim); }
+
+        #log-viewer { border-top: 1px solid var(--term-green); padding: 15px; margin-top: 10px; display: none; }
+        .view-header { color: var(--term-green); font-weight: bold; margin-bottom: 10px; font-size: 0.8rem; }
+        .view-body { color: var(--term-white); font-size: 0.9rem; white-space: pre-wrap; line-height: 1.4; border-left: 2px solid var(--term-green); padding-left: 15px; }
+
+        .task-list { list-style: none; padding: 0; }
+        .task-item { display: flex; align-items: center; padding: 5px 0; }
+        .task-item.completed { color: var(--term-dim); text-decoration: line-through; }
+        .checkbox { cursor: pointer; margin-right: 12px; }
+
+        .btn-ui { background: transparent; color: var(--term-green); border: 1px solid var(--term-green); font-family: inherit; cursor: pointer; padding: 4px 10px; font-size: 0.7rem; margin-top: 10px; }
+        .btn-ui:hover { background: var(--term-green); color: var(--bg-base); }
+        .btn-alert { color: var(--term-alert); border-color: var(--term-alert); }
+        .btn-sync { color: #00ffaa; border-color: #004422; }
+
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="terminal-container">
+        <div class="inner-border">
+            
+            <div class="sys-header">
+                <div class="status-line">
+                    <span>SYNC_PROTOCOL: <span class="blink" style="color:var(--term-green)">ACTIVE</span></span>
+                    <span id="sys-time">00:00:00</span>
+                </div>
+                <div class="welcome-text">> WELCOME OPERATOR <span id="it-count">----</span></div>
+            </div>
+
+            <div class="module">
+                <div class="module-title" id="legacy-title">MOD 01 // INHERITED</div>
+                <div class="data-box" id="patch-notes-display" style="color:var(--term-white); font-style: italic;">...</div>
+            </div>
+
+            <div class="module">
+                <div class="module-title">MOD 02 // DIRECTIVES</div>
+                <div class="data-box">
+                    <ul class="task-list" id="todo-list"></ul>
+                    <input type="text" id="new-task-input" placeholder="INPUT NEW DIRECTIVE...">
+                </div>
+            </div>
+
+            <div class="module">
+                <div class="module-title" id="successor-title">MOD 03 // HANDOVER</div>
+                <div class="data-box">
+                    <textarea id="next-note" placeholder="COMPILE SHIFT REPORT..." rows="2" onkeyup="saveNote()"></textarea>
+                </div>
+            </div>
+
+            <div class="module">
+                <div class="module-title">MOD 04 // DATA_NAVIGATOR</div>
+                <div class="data-box">
+                    <div class="archive-grid" id="sector-grid"></div>
+                    <div class="iteration-sub-grid" id="it-sub-grid"></div>
+
+                    <div id="log-viewer">
+                        <div class="view-header" id="view-id">DECRYPTING...</div>
+                        <div class="view-body" id="view-body">...</div>
+                    </div>
+
+                    <div style="margin-top:20px; border-top: 1px solid var(--term-dim); padding-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
+                        <button class="btn-ui btn-sync" onclick="cloudPush()">[SYNC_UP]</button>
+                        <button class="btn-ui btn-sync" onclick="cloudPull()">[SYNC_DOWN]</button>
+                        <button class="btn-ui" onclick="manualRollover()">[REBOOT]</button>
+                        <button class="btn-ui btn-alert" onclick="purgeArchive()">[PURGE]</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- SYSTEM CONFIGURATION ---
+        const startDateString = "2004-10-15T00:00:00"; 
+        const GIST_ID = "5d6511be28bb0a311362432f6b84ce91";
+        const GIST_TOKEN = "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";
+        
+        // --- GLOBAL VARIABLES ---
+        let dayOffset = parseInt(localStorage.getItem('it_offset')) || 0;
+        let tasks = JSON.parse(localStorage.getItem('it_tasks')) || [];
+        let archive = JSON.parse(localStorage.getItem('it_archive')) || [];
+        let currentIteration = 0;
+
+        // --- INITIALIZATION ---
+        function initSystem() {
+            const start = new Date(startDateString);
+            const now = new Date();
+            currentIteration = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + dayOffset;
+            
+            document.getElementById('it-count').innerText = currentIteration;
+            document.getElementById('legacy-title').innerText = `MOD 01 // INHERITED FROM [${currentIteration - 1}]`;
+            document.getElementById('successor-title').innerText = `MOD 03 // HANDOVER TO [${currentIteration + 1}]`;
+
+            checkAutoRollover();
+            renderTasks();
+            renderSectors();
+            
+            document.getElementById('next-note').value = localStorage.getItem('it_draft') || "";
+            setInterval(() => { document.getElementById('sys-time').innerText = new Date().toLocaleTimeString('en-GB'); }, 1000);
+        }
+
+        // --- CLOUD ENGINE ---
+        async function cloudPush() {
+            const data = {
+                archive: archive,
+                tasks: tasks,
+                patch: localStorage.getItem('it_patch') || "",
+                offset: dayOffset,
+                last_run: currentIteration
+            };
+            try {
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: { "Authorization": `token ${GIST_TOKEN}` },
+                    body: JSON.stringify({ files: { "soul_backup.json": { content: JSON.stringify(data) } } })
+                });
+                if (response.ok) alert(">> CLOUD_PUSH: SUCCESSFUL.");
+            } catch (e) { alert(">> ERROR: CONNECTION_FAILED."); }
+        }
+
+        async function cloudPull() {
+            try {
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    headers: { "Authorization": `token ${GIST_TOKEN}` }
+                });
+                const gist = await response.json();
+                const data = JSON.parse(gist.files["soul_backup.json"].content);
+
+                if (confirm(">> OVERWRITE LOCAL DATA WITH CLOUD?")) {
+                    localStorage.setItem('it_archive', JSON.stringify(data.archive));
+                    localStorage.setItem('it_tasks', JSON.stringify(data.tasks));
+                    localStorage.setItem('it_patch', data.patch);
+                    localStorage.setItem('it_offset', data.offset);
+                    localStorage.setItem('it_last_run', data.last_run);
+                    location.reload();
+                }
+            } catch (e) { alert(">> ERROR: PULL_FAILED."); }
+        }
+
+        // --- ROLLOVER LOGIC ---
+        function checkAutoRollover() {
+            let savedIter = parseInt(localStorage.getItem('it_last_run')) || currentIteration;
+            if (currentIteration > savedIter) { performRollover(savedIter); }
+            document.getElementById('patch-notes-display').innerText = localStorage.getItem('it_patch') || "INITIAL_BOOT_COMPLETE.";
+        }
+
+        function performRollover(iterToArchive) {
+            let lastNote = localStorage.getItem('it_draft') || "";
+            if (lastNote.trim() !== "") {
+                archive.unshift({ id: iterToArchive, body: lastNote, date: new Date().toDateString() });
+                localStorage.setItem('it_archive', JSON.stringify(archive));
+                localStorage.setItem('it_patch', lastNote);
+            }
+            localStorage.setItem('it_draft', "");
+            tasks = tasks.map(t => ({ ...t, done: false }));
+            localStorage.setItem('it_tasks', JSON.stringify(tasks));
+            localStorage.setItem('it_last_run', currentIteration);
+        }
+
+        function manualRollover() {
+            if(confirm("TERMINATE SHIFT?")) {
+                dayOffset++;
+                localStorage.setItem('it_offset', dayOffset);
+                performRollover(currentIteration - 1);
+                location.reload();
+            }
+        }
+
+        // --- UI RENDERING ---
+        function renderSectors() {
+            const grid = document.getElementById('sector-grid');
+            grid.innerHTML = '';
+            let sectors = {};
+            archive.forEach(entry => {
+                let sectorStart = Math.floor(entry.id / 100) * 100;
+                let sectorKey = `${sectorStart}-${sectorStart + 99}`;
+                if (!sectors[sectorKey]) sectors[sectorKey] = [];
+                sectors[sectorKey].push(entry);
+            });
+            Object.keys(sectors).sort().reverse().forEach(key => {
+                const div = document.createElement('div');
+                div.className = 'sector-block';
+                div.innerText = `SECTOR_${key}`;
+                div.onclick = () => showIterationGrid(sectors[key]);
+                grid.appendChild(div);
+            });
+        }
+
+        function showIterationGrid(entries) {
+            const itGrid = document.getElementById('it-sub-grid');
+            itGrid.style.display = 'grid';
+            itGrid.innerHTML = entries.map(e => `<div class="it-chip" onclick="decryptLog(${e.id})">${e.id}</div>`).join('');
+        }
+
+        function decryptLog(id) {
+            const viewer = document.getElementById('log-viewer');
+            const entry = archive.find(e => e.id === id);
+            if (entry) {
+                viewer.style.display = 'block';
+                document.getElementById('view-id').innerText = `>> LOG_DECRYPTED: ITERATION [${entry.id}]`;
+                document.getElementById('view-body').innerText = entry.body;
+                viewer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function renderTasks() {
+            document.getElementById('todo-list').innerHTML = tasks.map((t, i) => `
+                <li class="task-item ${t.done ? 'completed' : ''}">
+                    <span class="checkbox" onclick="toggleTask(${i})">[${t.done ? 'X' : ' '}]</span>
+                    <span style="flex-grow:1">${t.text}</span>
+                    <span style="cursor:pointer;color:var(--term-alert)" onclick="deleteTask(${i})">X</span>
+                </li>`).join('');
+        }
+
+        function addTask() {
+            let input = document.getElementById('new-task-input');
+            if (input.value.trim()) {
+                tasks.push({ text: input.value.toUpperCase(), done: false });
+                input.value = ''; saveTasks(); renderTasks();
+            }
+        }
+
+        function toggleTask(i) { tasks[i].done = !tasks[i].done; saveTasks(); renderTasks(); }
+        function deleteTask(i) { tasks.splice(i, 1); saveTasks(); renderTasks(); }
+        function saveTasks() { localStorage.setItem('it_tasks', JSON.stringify(tasks)); }
+        function saveNote() { localStorage.setItem('it_draft', document.getElementById('next-note').value); }
+        function purgeArchive() { if(confirm("PURGE ALL LOCAL DATA?")) { localStorage.clear(); location.reload(); } }
+        document.getElementById('new-task-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+
+        initSystem();
+    </script>
+</body>
+</html>
